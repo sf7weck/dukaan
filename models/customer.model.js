@@ -11,7 +11,6 @@ const CustomerSchema = mongoose.Schema(
             type: String,
             required: [true, "Please enter a firstname"],
         },
-
         middle_name: {
             type: String,
             required: false,

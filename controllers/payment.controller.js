@@ -7,7 +7,6 @@ exports.addPayment = async (req, res) => {
         res.status(400).json({message: 'Please provide valid data.'});
     }
     try{
-        // let postData = req.body;
         let insertData = {
             type: postData.type,    //credit => 1, debit => 0
             customer_id: postData.customerId,
@@ -15,7 +14,7 @@ exports.addPayment = async (req, res) => {
             status: CONSTANTS.ACTIVE,
         }
         const addPayment = await Payment.create(insertData);
-        res.status(200).json(addPayment);
+        res.status(200).json({ message: "Payment added successfully!!" });
     } catch(error){
         res.status(500).json({message: error.message});
     }
@@ -30,7 +29,6 @@ exports.editPayment = async (req, res) => {
     }
 
     try{
-        // let postData = req.body;
         let updateData = {};
         if(postData.customerId) updateData.customer_id = postData.customerId;
         if(postData.amount !== undefined) updateData.amount = postData.amount;
@@ -39,7 +37,7 @@ exports.editPayment = async (req, res) => {
 
         if(!updatePayment) return res.status(404).json({ message: 'Payment record not found' });
 
-        res.status(200).json(updatePayment);
+        res.status(200).json({ message: 'Payment edited successfully!!' });
     } catch(error){
         res.status(500).json({message: error.message});
     }
@@ -62,7 +60,7 @@ exports.deletePayment = async (req, res) => {
 
         if(!updatePayment) return res.status(404).json({ message: 'Payment record not found' });
 
-        res.status(200).json(updatePayment);
+        res.status(200).json({ message: 'Payment deleted successfully!!' });
     } catch(error){
         res.status(500).json({message: error.message});
     }

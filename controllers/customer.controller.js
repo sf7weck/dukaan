@@ -3,6 +3,7 @@ const Customer = require('../models/customer.model.js');
 const Payment = require('../models/payment.model.js');
 const ProductRecord = require('../models/productRecords.model.js');
 const CONSTANTS = require('../constants.js');
+const Helper = require('../helper.js');
 
 exports.addCustomer = async (req, res) => {
     let postData = req.body;
@@ -17,7 +18,6 @@ exports.addCustomer = async (req, res) => {
     }
 
     try {
-        // let postData = req.body;
         const insertData = {
             customer_type: postData.type,
             first_name: postData.firstname,
@@ -29,7 +29,7 @@ exports.addCustomer = async (req, res) => {
         };
 
         const addCustomer = await Customer.create(insertData);
-        res.status(200).json(addCustomer);
+        res.status(200).json({ message: "Customer added successfully!!" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -39,55 +39,65 @@ exports.getCustomerList = async (req, res) => {
     try{
         let filter = req.params;
         const list = await Customer.find({
-            $and: [                     // Using $and for multiple conditions
-                { customer_type: filter.type ?? CONSTANTS.DEBIT },  // Condition 1
-                { shop_name: { $ne: '' } }  // Condition 2: shop_name not equal to an empty string
+            $and: [
+                { customer_type: filter.type ?? CONSTANTS.DEBIT },
+                { shop_name: { $ne: '' } },
+                { status: CONSTANTS.ACTIVE }
             ],
-            // $or: [                     // Using $or to include alternative conditions
-            //     { status: 1 },        // Condition 1 for $or
-            //     { status: 2 }         // Condition 2 for $or
-            // ]
         }, '_id shop_name marka');
-        res.status(200).json(list);
+
+        for(let customer of list){
+            let balance = await Helper.getBalance(customer._id);
+            customer.balance = balance;
+        }
+        res.status(200).json({ data: list, message: "Successfull!!" });
     } catch(error){
         res.status(500).json({ message: error.message });
     }
 };
 
 exports.getCustomerProductRecords = async (req, res) => {
-    const customerId = req.params.customer_id;
-    if(!customerId){
+    let filter = req.params;
+    if(!filter.customer_id){
         res.status(400).json({message: "Invalid Customer!!!"})
     }
 
     try{
+        let dates = await Helper.formatInputDate(filter, 30);
+        if(!dates.success){ res.status(400).json({ data: {}, message: dates.message }); }
         let list = await ProductRecord.find({
             $and: [
-                { customer_id: customerId },
-                { status: CONSTANTS.ACTIVE }
+                { customer_id: filter.customer_id },
+                { status: CONSTANTS.ACTIVE },
+                { createdAt: { $gte: dates.start_date } },
+                { createdAt: { $lte: dates.end_date } }
             ]
-        }, 'type carton quantity quantity_short rate amount createdAt');
-        res.status(200).json(list);
+        }, 'type carton quantity quantity_short rate amount createdAt').sort({ createdAt: -1 });
+        res.status(200).json({ data: list, message: "Successfull!!"});
     } catch(error){
         res.status(500).json({message: error.message});
     }
 };
 
 exports.getCustomerPaymentRecords = async (req, res) => {
-    const customerId = req.params.customer_id;
-    if(!customerId){
+    let filter = req.params;
+    if(!filter.customer_id){
         res.status(400).json({message: "Invalid Customer!!!"})
     }
 
     try{
+        let dates = await Helper.formatInputDate(filter, 30);
+        if(!dates.success){ res.status(400).json({ data: {}, message: dates.message }); }
         let list = await Payment.find({
             $and: [
-                { customer_id: customerId },
-                { status: CONSTANTS.ACTIVE }
+                { customer_id: filter.customer_id },
+                { status: CONSTANTS.ACTIVE },
+                { createdAt: { $gte: dates.start_date } },
+                { createdAt: { $lte: dates.end_date } }
             ]
         }, 'type amount createdAt');
-        res.status(200).json(list);
+        res.status(200).json({ data: list, message: "Successfull!!" });
     } catch(error){
-        res.status(500).json({message: error.message});
+        res.status(500).json({message: error.message}).sort({ createdAt: -1 });
     }
 };

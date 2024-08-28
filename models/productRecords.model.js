@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Customer = require('../models/customer.model.js');
+const Product = require('../models/product.model.js');
 
 
 const ProductRecordsSchema = mongoose.Schema(
@@ -25,6 +26,18 @@ const ProductRecordsSchema = mongoose.Schema(
                     return Number.isInteger(value) && value >= 0 && value <= 255;
                 },
                 message: 'Please provide a valid type.'
+            }
+        },
+
+        product_id: {
+            type: String,
+            required: [true, 'Please provide a customer.'],
+            validate: {
+                validator: async function(value) {
+                    const productExists = await Product.exists({ _id: value });
+                    return productExists;
+                },
+                message: 'Customer does not exist.'
             }
         },
 

@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const app = express();
 
 
-mongoose.connect("mongodb+srv://faizansayed877:dgC1yqz5ANIhK9qx@cluster0.by1yj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(()=>{
+mongoose.connect("mongodb+srv://faizansayed877:@cluster0.by1yj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(()=>{
     console.log("Connected to the database.")
     app.listen(3000);
 }).catch(()=>{
@@ -14,7 +14,6 @@ mongoose.connect("mongodb+srv://faizansayed877:dgC1yqz5ANIhK9qx@cluster0.by1yj.m
 const adminRoutes = require('../dukaan/routes/admin');
 const usersRoutes = require('../dukaan/routes/users');
 
-// app.use(bodyParser.urlencoded({extended: false}));
 app.use(express.json());
 
 app.use('/admin', adminRoutes);

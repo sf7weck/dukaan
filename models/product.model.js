@@ -34,6 +34,28 @@ const ProductSchema = mongoose.Schema(
                 message: 'Rate must be a valid number.'
             }
         },
+
+        available: {
+            type: Number,
+            required: [true, 'Please provide available stock.'],
+            validate: {
+                validator: function(value){
+                    return Number.isInteger(value);
+                },
+                message: 'Please provide a valid available stock.'
+            }
+        },
+
+        status: {
+            type: Number,
+            required: [true, "Please provide status."],
+            validate: {
+                validator: function(value) {
+                    return Number.isInteger(value) && value >= 0 && value <= 255; // Example for unsigned tinyInteger
+                },
+                message: props => `${props.value} is not a valid status.`
+            }
+        },
     },
     {
         timestamps: true,

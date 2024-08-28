@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 
@@ -5,7 +6,7 @@ const mongoose = require('mongoose');
 const app = express();
 
 
-mongoose.connect("mongodb+srv://faizansayed877:@cluster0.by1yj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(()=>{
+mongoose.connect(process.env.MONGO_URI).then(()=>{
     console.log("Connected to the database.")
     app.listen(3000);
 }).catch(()=>{

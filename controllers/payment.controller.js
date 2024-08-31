@@ -8,8 +8,8 @@ exports.addPayment = async (req, res) => {
     }
     try{
         let insertData = {
-            type: postData.type,    //credit => 1, debit => 0
-            customer_id: postData.customerId,
+            type: postData.payment_type,    //credit => 1, debit => 0
+            customer_id: postData.customer_id,
             amount: postData.amount,
             status: CONSTANTS.ACTIVE,
         }

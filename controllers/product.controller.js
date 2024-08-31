@@ -3,26 +3,6 @@ const ProductRecord = require('../models/productRecords.model.js');
 const Helper = require('../helper.js');
 const CONSTANTS = require('../constants.js');
 
-exports.addNewProduct = async (req, res) => {
-    let postData = req.body;
-    if(postData == '' || postData == undefined){
-        res.status(400).json({message: 'Please provide valid data.'});
-    }
-
-    try{
-        let inserData = {
-            name: postData.name,
-            quantity: postData.quantity,
-            rate: postData.rate,
-            available: CONSTANTS.INACTIVE,
-        }
-        const addProduct = await Product.create(inserData);
-        res.status(200).json({ message: 'New Product added successfully!!!'})
-    } catch(error){
-        res.status(500).json({ message: error.message });
-    }
-}
-
 exports.productList = async (req, res) => {
     try{
         let list = await Product.find({
@@ -34,44 +14,6 @@ exports.productList = async (req, res) => {
     } catch(error){
         res.status(500).json({ message: error.message });
     }
-}
-
-exports.editProduct = async (req, res) => {
-    const productId = req.params.product_id;
-    let postData = req.body;
-    if(!productId || postData == '' || postData == undefined){
-        res.status(400).json({message: 'Please provide valid data.'});
-    }  
-
-    try{
-        let editData = {
-            name: postData.name,
-            quantity: postData.quantity,
-            rate: postData.rate,
-            status: CONSTANTS.ACTIVE
-        }
-        const editProduct = await ProductRecord.findByIdAndUpdate({_id: productId}, editData, {new:true});
-        if(!editProduct) return res.status(404).json({ message: 'Product record not found' });
-        res.status(200).json({ message: 'Product edited successfully!!!'})
-    } catch(error){
-        res.status(500).json({ message: error.message });
-    }
-}
-
-exports.deleteProduct = async (req, res) => {
-    const productId = req.params.product_id;
-    if(!productId || productId == undefined){
-        res.status(400).json({message: 'Please provide valid data.'});
-    } 
-
-    try{
-        const deleteProduct = await Product.findByIdAndUpdate({ _id: productId }, { status: CONSTANTS.DELETE }, {new:true});
-        if(!deleteProduct) return res.status(404).json({ message: 'Product not found' });
-        res.status(200).json({ message: 'Product deleted successfully!!!'})
-    } catch(error){
-        res.status(500).json({ message: error.message });
-    }
-
 }
 
 exports.productHistory = async (req, res) => {
@@ -99,20 +41,79 @@ exports.productHistory = async (req, res) => {
     }
 }
 
+exports.addNewProduct = async (req, res) => {
+    let postData = req.body;
+    if(!postData){
+        res.status(400).json({message: 'Please provide valid data.'});
+    }
+
+    try{
+        let inserData = {
+            name: postData.name,
+            quantity: postData.quantity,
+            rate: postData.rate,
+            available: CONSTANTS.INACTIVE,
+            status: CONSTANTS.ACTIVE,
+        }
+        const addProduct = await Product.create(inserData);
+        res.status(200).json({ message: 'New Product added successfully!!!'})
+    } catch(error){
+        res.status(500).json({ message: error.message });
+    }
+}
+
+exports.editProduct = async (req, res) => {
+    const productId = req.params.product_id;
+    let postData = req.body;
+    if(!productId || postData == '' || postData == undefined){
+        res.status(400).json({message: 'Please provide valid data.'});
+    }  
+
+    try{
+        let editData = {
+            name: postData.name,
+            quantity: postData.quantity,
+            rate: postData.rate,
+            status: CONSTANTS.ACTIVE
+        }
+        const editProduct = await Product.findByIdAndUpdate({_id: productId}, editData, {new:true});
+        if(!editProduct) return res.status(404).json({ message: 'Product record not found' });
+        res.status(200).json({ message: 'Product edited successfully!!!'})
+    } catch(error){
+        res.status(500).json({ message: error.message });
+    }
+}
+
+exports.deleteProduct = async (req, res) => {
+    const productId = req.params.product_id;
+    if(!productId || productId == undefined){
+        res.status(400).json({message: 'Please provide valid data.'});
+    } 
+
+    try{
+        const deleteProduct = await Product.findByIdAndUpdate({ _id: productId }, { status: CONSTANTS.DELETE }, {new:true});
+        if(!deleteProduct) return res.status(404).json({ message: 'Product not found' });
+        res.status(200).json({ message: 'Product deleted successfully!!!'})
+    } catch(error){
+        res.status(500).json({ message: error.message });
+    }
+
+}
+
 exports.dailyProductsEntry = async (req, res) => {
     let postData = req.body;
-    if(postData == '' || postData == undefined){
+    if(!postData){
         res.status(400).json({message: 'Please provide valid data.'});
     }  
 
     try{
         let inserData = {
-            customer_id: postData.customerId,
-            product_id: postData.productId,
+            customer_id: postData.customer_id,
+            product_id: postData.product_id,
             type: postData.type,
             carton: postData.carton ?? 1,
             quantity: postData.quantity ?? 1,
-            quantity_short: postData.quantityShort ?? 0,
+            quantity_short: (postData?.quantity_short || postData.quantity_short !=0) ? postData.quantity_short : 0,
             rate: postData.rate ?? 0,
             amount: '',
             status: CONSTANTS.ACTIVE
@@ -134,13 +135,14 @@ exports.editProductEntry = async (req, res) => {
 
     try{
         let editData = {
+            customer_id: postData.customer_id,
+            product_id: postData.product_id,
             type: postData.type,
-            product_id: postData.productId,
             carton: postData.carton ?? 1,
             quantity: postData.quantity ?? 1,
-            quantity_short: postData.quantityShort ?? 0,
-            rate: postData.rate,
-            status: CONSTANTS.ACTIVE
+            quantity_short: (postData?.quantity_short || postData.quantity_short !=0) ? postData.quantity_short : 0,
+            rate: postData.rate ?? 0,
+            amount: ''
         }
         editData.amount = editData.carton * (editData.quantity + editData.quantity_short) * editData.rate;
         const editProduct = await ProductRecord.findByIdAndUpdate({_id: entryId}, editData, {new:true});

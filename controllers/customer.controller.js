@@ -19,7 +19,7 @@ exports.addCustomer = async (req, res) => {
 
     try {
         const insertData = {
-            customer_type: postData.type,
+            customer_type: postData.customer_type,
             first_name: postData.firstname,
             middle_name: postData.middlename,
             last_name: postData.lastname,
@@ -81,6 +81,7 @@ exports.getCustomerProductRecords = async (req, res) => {
 
 exports.getCustomerPaymentRecords = async (req, res) => {
     let filter = req.params;
+    console.log(filter)
     if(!filter.customer_id){
         res.status(400).json({message: "Invalid Customer!!!"})
     }
@@ -95,9 +96,40 @@ exports.getCustomerPaymentRecords = async (req, res) => {
                 { createdAt: { $gte: dates.start_date } },
                 { createdAt: { $lte: dates.end_date } }
             ]
-        }, 'type amount createdAt');
+        }, 'type customer_id amount createdAt').sort({ createdAt: -1 });
         res.status(200).json({ data: list, message: "Successfull!!" });
     } catch(error){
-        res.status(500).json({message: error.message}).sort({ createdAt: -1 });
+        res.status(500).json({message: error.message});
     }
 };
+
+exports.editCustomer = async (req, res) => {
+    let customerId = req?.params?.customer_id;
+    if(!customerId){
+        res.status(400).json({ message: "Invalid data!!"});
+    }
+
+    let postData = req.body;
+    if(!postData){
+        res.status(400).json({message: 'Please provide valid data.'});
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try{
+        let editData = {
+            first_name: postData.firstname,
+            middle_name: postData.middlename,
+            last_name: postData.lastname,
+            shop_name: postData.shopname,
+            marka: postData.marka,
+        }
+        const editResponse = await Customer.findByIdAndUpdate({ _id: customerId },editData, { new: true });
+        if(!editResponse) return res.status(400).json({ message: 'Customer not found' });
+        res.status(200).json({ message: 'Customer edited successfully!!!'})
+    } catch(error){
+        res.status(500).json({ message: error.message });
+    }
+}

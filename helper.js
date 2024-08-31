@@ -67,10 +67,10 @@ exports.getBalance = async (customerId, filter) => {
 
 
 exports.formatInputDate = async (dates, defaultStartDay = 30) => {
-    startDate =filter.start_date ? new Date(filter.start_date).setHours(0, 0, 0, 0) : new Date(new Date().setDate(new Date().getDate() - defaultStartDay)).setHours(0, 0, 0, 0);
-    endDate =filter.end_date ? new Date(filter.end_date).setHours(23, 59, 59, 999) : new Date().setHours(23, 59, 59, 999);
-    if (filter.start_date.getTime() > filter.end_date.getTime()) {
+    startDate =dates.start_date ? new Date(dates.start_date).setHours(0, 0, 0, 0) : new Date(new Date().setDate(new Date().getDate() - defaultStartDay)).setHours(0, 0, 0, 0);
+    endDate =dates.end_date ? new Date(dates.end_date).setHours(23, 59, 59, 999) : new Date().setHours(23, 59, 59, 999);
+    if (startDate > endDate) {
         return { success: false, data: {}, message: "Start time cannot be greater than end time." };
     }
-    return { success: true, dates: {start_date: startDate, end_date: endDate}, message: "Success." };
+    return { success: true, start_date: startDate, end_date: endDate, message: "Success." };
 }

@@ -25,16 +25,16 @@ const ProductSchema = mongoose.Schema(
         },
 
         rate: {
-            type: Float32Array,
+            type: Number,  // Use Number instead of Float32Array
             required: [true, 'Please provide product rate.'],
             validate: {
-                validator: function(value){
+                validator: function(value) {
                     return /^[+-]?(\d+(\.\d+)?|\.\d+)$/.test(value.toString());
                 },
                 message: 'Rate must be a valid number.'
             }
         },
-
+        
         available: {
             type: Number,
             required: [true, 'Please provide available stock.'],

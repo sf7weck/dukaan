@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const ProductRecord = require('./models/productRecords.model.js');
 const Customer = require('./models/customer.model.js');
 const Payment = require('./models/payment.model.js');
@@ -73,4 +74,15 @@ exports.formatInputDate = async (dates, defaultStartDay = 30) => {
         return { success: false, data: {}, message: "Start time cannot be greater than end time." };
     }
     return { success: true, start_date: startDate, end_date: endDate, message: "Success." };
+}
+
+exports.verifyPassword = async (enteredPassword, storedHashedPassword) => {
+    const isMatch = await bcrypt.compare(enteredPassword, storedHashedPassword);
+    return isMatch;
+}
+
+exports.hashPassword = async (plainTextPassword) => { 
+    const saltRounds = 10; 
+    const hashedPassword = await bcrypt.hash(plainTextPassword, saltRounds); 
+    return hashedPassword; 
 }

@@ -5,6 +5,7 @@ const router = express.Router();
 const customerController = require('../controllers/customer.controller.js')
 const paymentController = require('../controllers/payment.controller.js')
 const productController = require('../controllers/product.controller.js')
+const userController = require('../controllers/user.controller.js')
 const { addCustomerValidationRules } = require('../validations/customer.validation.js')
 
 router.get('/home', (req, res) => {
@@ -13,8 +14,8 @@ router.get('/home', (req, res) => {
 
 // user authentication routes
 
-router.post('/login')
-router.post('/sign-up')
+router.post('/login', userController.login);
+router.post('/sign-up', userController.register);
 router.post('/reset-password')
 
 // products routes
